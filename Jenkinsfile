@@ -62,7 +62,6 @@ pipeline {
                         reportName: 'Site'
             ])
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
-            jacoco ( execPattern: 'target/jacoco.exec')
             recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
             recordIssues enabledForFailure: true, tools: [cpd(pattern: '**/target/cpd.xml')]
             recordIssues enabledForFailure: true, tools: [pmdParser(pattern: '**/target/pmd.xml')]
