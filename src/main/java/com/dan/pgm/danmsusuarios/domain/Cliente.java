@@ -1,5 +1,6 @@
 package com.dan.pgm.danmsusuarios.domain;
 
+import java.time.Instant;
 import java.util.List;
 
 public class Cliente {
@@ -12,7 +13,9 @@ public class Cliente {
     private Boolean habilitadoOnline;
     private Usuario user;
     private List<Obra> obras;
-	public Integer getId() {
+    private Instant fechaBaja;
+
+    public Integer getId() {
 		return id;
 	}
 	public void setId(Integer id) {
@@ -60,5 +63,8 @@ public class Cliente {
 	public void setObras(List<Obra> obras) {
 		this.obras = obras;
 	}
-    
+	public Instant getFechaBaja() { return fechaBaja; }
+	public void setFechaBaja(Instant fechaBaja) {
+		this.fechaBaja = fechaBaja;
+	}
 }
