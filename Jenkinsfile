@@ -22,6 +22,16 @@ pipeline {
                 bat "echo buildeando develop"
             }
         }
+        stage('clean-req-guia-04') {
+            when {
+                branch 'req-guia-04'
+            }
+            steps {
+                bat "java -version"
+                bat "./mvnw clean"
+                bat "echo buildeando req-guia-04"
+            }
+        }
         stage('backend tests') {
             steps {
                 bat "./mvnw verify"
