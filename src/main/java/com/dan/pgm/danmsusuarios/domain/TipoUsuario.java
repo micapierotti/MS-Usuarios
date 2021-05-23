@@ -1,21 +1,11 @@
 package com.dan.pgm.danmsusuarios.domain;
 
-public class TipoUsuario {
+import javax.persistence.Entity;
 
-	private Integer id;
-	private String tipo;
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
-	public String getTipo() {
-		return tipo;
-	}
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
-	
+@Entity
+public enum TipoUsuario {
+
+	CLIENTE,
+	EMPLEADO
 	
 }

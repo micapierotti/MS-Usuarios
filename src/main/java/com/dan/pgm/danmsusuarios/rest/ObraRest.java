@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
+import com.dan.pgm.danmsusuarios.services.ClienteService;
+import com.dan.pgm.danmsusuarios.services.ObraService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,17 +33,24 @@ import io.swagger.annotations.ApiResponses;
 public class ObraRest {
 	
 	private static final List<Obra> listaObras = new ArrayList<>();
-    private static Integer ID_GEN = 1;
-	 
+
+	@Autowired
+	ObraService obraSrv;
+
 	@PostMapping
 	 @ApiOperation(value = "Carga una obra")
 	    public ResponseEntity<Obra> crear(@RequestBody Obra nuevo){
 	    	System.out.println(" crear obra "+nuevo);
-	        nuevo.setId(ID_GEN++);
-	        listaObras.add(nuevo);
-	        return ResponseEntity.ok(nuevo);
+			Obra o = obraSrv.crearObra(nuevo);
+	       	if(o != null) {
+				return ResponseEntity.ok(o);
+			} else {
+	       		return ResponseEntity.notFound().build();
+			}
+
 	    }
-	
+
+	    //TODO VER?? ¿
 	 @PutMapping(path = "/{id}")
 	    @ApiOperation(value = "Actualiza una obra")
 	    @ApiResponses(value = {
@@ -50,77 +60,43 @@ public class ObraRest {
 	        @ApiResponse(code = 404, message = "El ID no existe")
 	    })
 	    public ResponseEntity<Obra> actualizar(@RequestBody Obra nuevo,  @PathVariable Integer id){
-	        OptionalInt indexOpt =   IntStream.range(0, listaObras.size())
-	        .filter(i -> listaObras.get(i).getId().equals(id))
-	        .findFirst();
-
-	        if(indexOpt.isPresent()){
-	            listaObras.set(indexOpt.getAsInt(), nuevo);
-	            return ResponseEntity.ok(nuevo);
-	        } else {
-	            return ResponseEntity.notFound().build();
-	        }
+	       return ResponseEntity.ok(obraSrv.actualizarObra(nuevo));
 	    }
 
+		// TODO corroborar respondeEntity<pedido> con ResponseEntity.ok?
 	    @DeleteMapping(path = "/{id}")
 	    @ApiOperation(value = "Borra una obra por id")
 	    public ResponseEntity<Obra> borrar(@PathVariable Integer id){
-	        OptionalInt indexOpt =   IntStream.range(0, listaObras.size())
-	        .filter(i -> listaObras.get(i).getId().equals(id))
-	        .findFirst();
-
-	        if(indexOpt.isPresent()){
-	            listaObras.remove(indexOpt.getAsInt());
-	            return ResponseEntity.ok().build();
-	        } else {
-	            return ResponseEntity.notFound().build();
-	        }
+	        boolean resultado = obraSrv.borrarObra(id);
+	        if(resultado){
+	        	return ResponseEntity.ok().build();
+			}else{
+	        	return ResponseEntity.notFound().build();
+			}
 	    }
 	    
 	    @GetMapping(path = "/{id}")
 	    @ApiOperation(value = "Busca una obra por id")
 	    public ResponseEntity<Obra> obraPorId(@PathVariable Integer id){
-
-	        Optional<Obra> c =  listaObras
-	                .stream()
-	                .filter(unaObra -> unaObra.getId().equals(id))
-	                .findFirst();
-	        return ResponseEntity.of(c);
+			Obra o = obraSrv.buscarObraPorId(id);
+			if(o != null){
+				return ResponseEntity.ok(o);
+			} else {
+				return  ResponseEntity.notFound().build();
+			}
 	    }
 	    
 	    @GetMapping
 	    @ApiOperation(value = "Busca una obra por cliente y/o tipo de obra")
-	    public ResponseEntity<List<Obra>> obraPorNombre(@RequestParam(name="idCliente", required = false) Integer idCliente, @RequestParam(name="idTipoObra", required = false) Integer idTipoObra){
-	    	
-	    	List<Obra> listaObrasFinal = new ArrayList<>(listaObras);
-	    	System.out.println("idCliente: " + idCliente);
-	    	System.out.println("idTipoObra: " + idTipoObra);
-	    	if(idCliente != null) {
-	    		System.out.println("idCliente no nulo");
-	    		for(Obra ob:listaObras) {
-	    			System.out.println("comparación de ids, son distintos?: " + (ob.getCliente().getId() != idCliente));
-	    			if(ob.getCliente().getId() != idCliente) {
-	    				System.out.println("Id cliente de obra a borrar: " + ob.getCliente().getId());
-	    				listaObrasFinal.remove(ob);
-	    				System.out.println("Lista actualizada: " + listaObrasFinal);
-	    			}
-	    		}
-	    	}
-	    	if(idTipoObra != null) {
-	    		System.out.println("idTipoObra no nulo");
-	    		for(Obra ob:listaObras) {
-	    			System.out.println("comparación de ids , son distintos?: " + (ob.getTipo().getId() != idTipoObra));
-	    			if(ob.getTipo().getId() != idTipoObra) {
-	    				System.out.println("Id tipo obra de obra a borrar: " + ob.getTipo().getId());
-	    				listaObrasFinal.remove(ob);
-	    				System.out.println("Lista actualizada: " + listaObrasFinal);
-	    			}
-	    		}
-	    	}
-	    	
-	    	System.out.println("Lista a devolver: " + listaObrasFinal);
-	       
-	        return ResponseEntity.ok(listaObrasFinal);
+	    public ResponseEntity<List<Obra>> obraPorClienteOTipo(@RequestParam(name="idCliente", required = false) Integer idCliente,
+															  @RequestParam(name="tipoObra", required = false) String tipoObra){
+
+			List<Obra> resultado = obraSrv.buscarPorClienteOTipo(idCliente, tipoObra);
+			if(resultado.size() > 0){
+				return ResponseEntity.ok(resultado);
+			}else{
+				return ResponseEntity.notFound().build();
+			}
 	    }
 
 }
