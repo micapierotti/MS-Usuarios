@@ -1,11 +1,6 @@
 package com.dan.pgm.danmsusuarios.rest;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.IntStream;
-
 import com.dan.pgm.danmsusuarios.domain.Obra;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dan.pgm.danmsusuarios.domain.Cliente;
@@ -35,8 +29,6 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/api/cliente")
 @Api(value = "ClienteRest", description = "Permite gestionar los clientes de la empresa")
 public class ClienteRest {
-    
-    private static final List<Cliente> listaClientes = new ArrayList<>();
 
     @Autowired
     ClienteService clienteSrv;
@@ -45,11 +37,10 @@ public class ClienteRest {
     @ApiOperation(value = "Carga un cliente")
     public ResponseEntity<String> crear(@RequestBody Cliente nuevoCliente){
 
-        System.out.println(" crear cliente "+ nuevoCliente);
+        System.out.println("Crear cliente "+ nuevoCliente);
 
         if(nuevoCliente.getObras().size() == 0) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Debe tener una o más obras");
-
         }
         for(Obra ob:nuevoCliente.getObras()){
             if(ob.getTipo() == null){
@@ -58,10 +49,8 @@ public class ClienteRest {
         }
 
         clienteSrv.crearCliente(nuevoCliente);
-
         return ResponseEntity.status(HttpStatus.CREATED).body("OK");
     }
-
 
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "Busca un cliente por id")
@@ -86,7 +75,6 @@ public class ClienteRest {
         List<Cliente> clientes;
         if(razonSocial != null) {
     	    clientes = clienteSrv.buscarTodosRazonSocial(razonSocial);
-
     	} else {
             clientes = clienteSrv.buscarTodos();
         }

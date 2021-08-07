@@ -12,6 +12,7 @@ public class Empleado {
 	@OneToOne
 	@JoinColumn(name = "USUARIO_ID")
 	private Usuario user;
+
 	public Integer getId() {
 		return id;
 	}
