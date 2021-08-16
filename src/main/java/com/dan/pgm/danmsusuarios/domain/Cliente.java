@@ -1,17 +1,23 @@
 package com.dan.pgm.danmsusuarios.domain;
 
+import javax.persistence.*;
 import java.time.Instant;
 import java.util.List;
-
+@Entity
 public class Cliente {
-	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String razonSocial;
     private String cuit;
     private String mail;
     private Double maxCuentaCorriente;
     private Boolean habilitadoOnline;
+    @OneToOne
+	@JoinColumn(name = "USUARIO_ID")
     private Usuario user;
+    @ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "OBRAS_ID")
     private List<Obra> obras;
     private Instant fechaBaja;
 

@@ -1,15 +1,23 @@
 package com.dan.pgm.danmsusuarios.domain;
+import javax.persistence.*;
 
+@Entity
 public class Obra {
-	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	private String descripcion;
 	private Float latitud;
 	private Float longitud;
 	private String direccion;
 	private Integer superficie;
+	@Enumerated(EnumType.STRING)
 	private TipoObra tipo;
+	@OneToMany(mappedBy = "obras", targetEntity = Cliente.class, cascade = CascadeType.ALL,
+	fetch = FetchType.LAZY, orphanRemoval = true)
 	private Cliente cliente;
+
+
 	public Integer getId() {
 		return id;
 	}

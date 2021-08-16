@@ -1,11 +1,15 @@
 package com.dan.pgm.danmsusuarios.domain;
 
-public class Usuario {
+import javax.persistence.*;
 
-	
+@Entity
+public class Usuario {
+	@Id
+	@GeneratedValue
 	private Integer id;
 	private String user;
 	private String password;
+	@Enumerated(EnumType.STRING)
 	private TipoUsuario tipoUsuario;
 
 	public TipoUsuario getTipoUsuario() {
