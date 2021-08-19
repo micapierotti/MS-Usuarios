@@ -10,7 +10,6 @@ import java.util.List;
 @Service
 public class EmpleadoServiceImpl implements EmpleadoService {
 
-    @Autowired
     EmpleadoRepository empleadoRepository;
 
     @Override
