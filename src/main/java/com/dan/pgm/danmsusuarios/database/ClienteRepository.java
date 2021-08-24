@@ -3,9 +3,10 @@ package com.dan.pgm.danmsusuarios.database;
 import com.dan.pgm.danmsusuarios.domain.Cliente;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface ClienteRepository extends CrudRepository<Cliente, Integer> {
 
     //@Query("select * from Pedido p where p.estado = ?1")

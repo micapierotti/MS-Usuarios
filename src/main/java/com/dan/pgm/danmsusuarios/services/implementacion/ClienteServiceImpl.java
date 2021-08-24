@@ -31,10 +31,8 @@ public class ClienteServiceImpl implements ClienteService {
     @Autowired
     ClienteRepositoryInMemory repo;
 
-    @Autowired
     ClienteRepository clienteRepository;
 
-    @Autowired
     UsuarioRepository usuarioRepository;
 
     @Override

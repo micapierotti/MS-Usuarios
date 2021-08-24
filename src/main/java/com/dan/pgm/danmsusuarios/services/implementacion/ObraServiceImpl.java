@@ -9,11 +9,12 @@ import com.dan.pgm.danmsusuarios.repository.ClienteRepositoryInMemory;
 import com.dan.pgm.danmsusuarios.services.ObraService;
 import com.dan.pgm.danmsusuarios.services.RiesgoBCRAService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Service
 public class ObraServiceImpl implements ObraService {
 
     @Autowired
