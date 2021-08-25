@@ -10,12 +10,12 @@ import java.util.List;
 public interface ClienteRepository extends CrudRepository<Cliente, Integer> {
 
     //@Query("select * from Pedido p where p.estado = ?1")
-    @Query("select * from Cliente c where c.fecheBaja is null")
+    @Query(value = "select c from Cliente c where c.fecheBaja is null", nativeQuery = true)
     List<Cliente> findAllByFechaBaja();
 
-    @Query("select * from Cliente c where c.fecheBaja is null AND c.razonSocial = ?1 ")
+    @Query(value = "select c from Cliente c where c.fecheBaja is null AND c.razonSocial = ?1 ", nativeQuery = true)
     List<Cliente> findAllByRazonSocial(String razonSocial);
 
-    @Query("select * from Cliente c where c.fecheBaja is null AND c.cuil = ?1 ")
+    @Query(value = "select c from Cliente c where c.fecheBaja is null AND c.cuil = ?1 ", nativeQuery = true)
     Cliente findAllByCuit(String cuil);
 }

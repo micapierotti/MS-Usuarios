@@ -28,7 +28,7 @@ public class EmpleadoRest {
 	@Autowired
 	EmpleadoService empleadoSrv;
 
-	@PostMapping
+	@PostMapping(path = "/new")
 	@ApiOperation(value = "Carga un empleado")
 	public ResponseEntity<String> crear(@RequestBody Empleado nuevoEmpleado){
 		System.out.println("Crear empleado " +nuevoEmpleado);
@@ -71,13 +71,13 @@ public class EmpleadoRest {
 				return ResponseEntity.notFound().build();
 	    }
 
-	    @GetMapping
+	    @GetMapping(path = "/by-name/{nombre}")
 	    @ApiOperation(value = "Busca un empleado por nombre")
 	    public ResponseEntity<Empleado> empleadoPorNombre(@RequestParam(name="nombre") String nombre){
 			return ResponseEntity.ok(empleadoSrv.buscarPorNombre(nombre));
 	    }
 
-		@GetMapping
+		@GetMapping()
 		@ApiOperation(value = "Devuelve todos los empleados")
 		public ResponseEntity<List<Empleado>> buscarTodos(){
 			List<Empleado> empleados = empleadoSrv.buscarTodos();

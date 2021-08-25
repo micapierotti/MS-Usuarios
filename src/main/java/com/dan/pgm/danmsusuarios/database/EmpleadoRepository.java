@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmpleadoRepository extends CrudRepository<Empleado, Integer> {
 
-    @Query("select * from Empleado e where e.user = ?1 ")
+    @Query("select e from Empleado e where e.user = ?1 ")
     Empleado findAllByNombre(String user);
 }

@@ -13,8 +13,8 @@ public class Obra {
 	private Integer superficie;
 	@Enumerated(EnumType.STRING)
 	private TipoObra tipo;
-	@OneToMany(mappedBy = "obras", targetEntity = Cliente.class, cascade = CascadeType.ALL,
-	fetch = FetchType.LAZY, orphanRemoval = true)
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "CLIENTE_ID")
 	private Cliente cliente;
 
 

@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface ObraRepository extends CrudRepository<Obra, Integer> {
 
-    @Query("select * from Obra o where o.tipo = ?1")
+    @Query("select o from Obra o where o.tipo = ?1")
     List<Obra> findByTipo(String tipo);
 }

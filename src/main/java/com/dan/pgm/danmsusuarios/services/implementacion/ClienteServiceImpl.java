@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -96,7 +93,7 @@ public class ClienteServiceImpl implements ClienteService {
             tienePedidos = this.verificarPedidosCliente(idsDeObra);
 
             if(tienePedidos){
-                cli.setFechaBaja(Instant.now());
+                cli.setFechaBaja(new Date());
             } else {
                 clienteRepository.delete(cli);
                 if (clienteRepository.findById(id).isPresent()) {

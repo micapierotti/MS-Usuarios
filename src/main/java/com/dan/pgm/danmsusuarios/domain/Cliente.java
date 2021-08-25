@@ -2,6 +2,7 @@ package com.dan.pgm.danmsusuarios.domain;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 @Entity
 public class Cliente {
@@ -16,10 +17,11 @@ public class Cliente {
     @OneToOne
 	@JoinColumn(name = "USUARIO_ID")
     private Usuario user;
-    @ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "OBRAS_ID")
+	@Column(name = "OBRA_ID")
+	@OneToMany(mappedBy = "cliente", targetEntity = Obra.class, cascade = CascadeType.ALL,
+			fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Obra> obras;
-    private Instant fechaBaja;
+    private Date fechaBaja;
 
     public Integer getId() {
 		return id;
@@ -69,8 +71,8 @@ public class Cliente {
 	public void setObras(List<Obra> obras) {
 		this.obras = obras;
 	}
-	public Instant getFechaBaja() { return fechaBaja; }
-	public void setFechaBaja(Instant fechaBaja) {
+	public Date getFechaBaja() { return fechaBaja; }
+	public void setFechaBaja(Date fechaBaja) {
 		this.fechaBaja = fechaBaja;
 	}
 }
