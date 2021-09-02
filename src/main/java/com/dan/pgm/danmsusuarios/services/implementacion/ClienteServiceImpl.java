@@ -101,8 +101,11 @@ public class ClienteServiceImpl implements ClienteService {
         if( cli != null) {
             ArrayList<Integer> idsDeObra = new ArrayList<Integer>();
             cli.getObras().forEach((obra) -> idsDeObra.add(obra.getId()));
-            tienePedidos = this.verificarPedidosCliente(idsDeObra);
-
+            if(idsDeObra.size() > 0) {
+                tienePedidos = this.verificarPedidosCliente(idsDeObra);
+            } else {
+                tienePedidos = false;
+            }
             if(tienePedidos){
                 cli.setFechaBaja(new Date());
             } else {

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
+import com.dan.pgm.danmsusuarios.dtos.ObraDTO;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import com.dan.pgm.danmsusuarios.services.ObraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +40,12 @@ public class ObraRest {
 
 	@PostMapping
 	 @ApiOperation(value = "Carga una obra")
-	    public ResponseEntity<Obra> crear(@RequestBody Obra nuevo){
+	    public ResponseEntity<ObraDTO> crear(@RequestBody Obra nuevo){
 	    	System.out.println(" crear obra "+nuevo);
 			Obra o = obraSrv.crearObra(nuevo);
 	       	if(o != null) {
-				return ResponseEntity.ok(o);
+				ObraDTO obraDTO = new ObraDTO(o);
+			    return ResponseEntity.ok(obraDTO);
 			} else {
 	       		return ResponseEntity.notFound().build();
 			}
@@ -59,8 +61,13 @@ public class ObraRest {
 	        @ApiResponse(code = 403, message = "Prohibido"),
 	        @ApiResponse(code = 404, message = "El ID no existe")
 	    })
-	    public ResponseEntity<Obra> actualizar(@RequestBody Obra nuevo,  @PathVariable Integer id){
-	       return ResponseEntity.ok(obraSrv.actualizarObra(nuevo));
+	    public ResponseEntity<ObraDTO> actualizar(@RequestBody Obra nuevo,  @PathVariable Integer id){
+			Obra o = obraSrv.actualizarObra(nuevo);
+			if(o != null) {
+				ObraDTO obraDTO = new ObraDTO(o);
+				return ResponseEntity.ok(obraDTO);
+			}
+			return ResponseEntity.badRequest().build();
 	    }
 
 		// TODO corroborar respondeEntity<pedido> con ResponseEntity.ok?
@@ -77,10 +84,11 @@ public class ObraRest {
 	    
 	    @GetMapping(path = "/{id}")
 	    @ApiOperation(value = "Busca una obra por id")
-	    public ResponseEntity<Obra> obraPorId(@PathVariable Integer id){
+	    public ResponseEntity<ObraDTO> obraPorId(@PathVariable Integer id){
 			Obra o = obraSrv.buscarObraPorId(id);
 			if(o != null){
-				return ResponseEntity.ok(o);
+				ObraDTO obraDTO = new ObraDTO(o);
+				return ResponseEntity.ok(obraDTO);
 			} else {
 				return  ResponseEntity.notFound().build();
 			}
@@ -88,12 +96,14 @@ public class ObraRest {
 	    
 	    @GetMapping
 	    @ApiOperation(value = "Busca una obra por cliente y/o tipo de obra")
-	    public ResponseEntity<List<Obra>> obraPorClienteOTipo(@RequestParam(name="idCliente", required = false) Integer idCliente,
+	    public ResponseEntity<List<ObraDTO>> obraPorClienteOTipo(@RequestParam(name="idCliente", required = false) Integer idCliente,
 															  @RequestParam(name="tipoObra", required = false) String tipoObra){
 
 			List<Obra> resultado = obraSrv.buscarPorClienteOTipo(idCliente, tipoObra);
 			if(resultado.size() > 0){
-				return ResponseEntity.ok(resultado);
+				List<ObraDTO> obrasDTO = new ArrayList<ObraDTO>();
+				resultado.stream().forEach(obra -> obrasDTO.add(new ObraDTO(obra)));
+				return ResponseEntity.ok(obrasDTO);
 			}else{
 				return ResponseEntity.notFound().build();
 			}
