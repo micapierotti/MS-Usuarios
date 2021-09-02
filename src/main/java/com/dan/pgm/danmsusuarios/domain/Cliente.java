@@ -75,4 +75,20 @@ public class Cliente {
 	public void setFechaBaja(Date fechaBaja) {
 		this.fechaBaja = fechaBaja;
 	}
+
+	public Cliente(Integer id, String razonSocial, String cuit, String mail, Double maxCuentaCorriente, Boolean habilitadoOnline, Usuario user, List<Obra> obras, Date fechaBaja) {
+		this.id = id;
+		this.razonSocial = razonSocial;
+		this.cuit = cuit;
+		this.mail = mail;
+		this.maxCuentaCorriente = maxCuentaCorriente;
+		this.habilitadoOnline = habilitadoOnline;
+		this.user = user;
+		this.obras = obras;
+		this.fechaBaja = fechaBaja;
+	}
+
+	public Cliente() {
+
+	}
 }

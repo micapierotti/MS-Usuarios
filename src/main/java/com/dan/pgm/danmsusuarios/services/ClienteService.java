@@ -2,6 +2,7 @@ package com.dan.pgm.danmsusuarios.services;
 
 import com.dan.pgm.danmsusuarios.domain.Cliente;
 import com.dan.pgm.danmsusuarios.domain.Obra;
+import com.dan.pgm.danmsusuarios.dtos.ClienteDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Optional;
 
 public interface ClienteService {
 
-    public Cliente crearCliente(Cliente cli);
+    public Cliente crearCliente(ClienteDTO clienteDTO);
     public Cliente buscarPorId(Integer id);
     public boolean borrarCliente(Integer id);
     public Cliente buscarPorCuit(String cuit);

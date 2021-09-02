@@ -2,6 +2,7 @@ package com.dan.pgm.danmsusuarios.rest;
 
 import java.util.List;
 import com.dan.pgm.danmsusuarios.domain.Obra;
+import com.dan.pgm.danmsusuarios.dtos.ClienteDTO;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,16 +36,17 @@ public class ClienteRest {
 
     @PostMapping
     @ApiOperation(value = "Carga un cliente")
-    public ResponseEntity<String> crear(@RequestBody Cliente nuevoCliente){
+    public ResponseEntity<String> crear(@RequestBody ClienteDTO nuevoCliente){
 
-        System.out.println("Crear cliente "+ nuevoCliente);
+        System.out.println("Crear cliente "+ nuevoCliente.toString());
 
-        if(nuevoCliente.getObras().size() == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Debe tener una o más obras");
-        }
-        for(Obra ob:nuevoCliente.getObras()){
-            if(ob.getTipo() == null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La obra "+ ob.getId() +" debe tener un tipo asignado");
+        if (nuevoCliente.getObras() != null) {
+            if(nuevoCliente.getObras().size() > 0) {
+                for (Obra ob : nuevoCliente.getObras()) {
+                    if (ob.getTipo() == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La obra " + ob.getId() + " debe tener un tipo asignado");
+                    }
+                }
             }
         }
 
@@ -52,9 +54,10 @@ public class ClienteRest {
         return ResponseEntity.status(HttpStatus.CREATED).body("OK");
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/by-id/{id}")
     @ApiOperation(value = "Busca un cliente por id")
     public ResponseEntity<Cliente> clientePorId(@PathVariable Integer id){
+        System.out.println("entró al get por id");
         Cliente c = clienteSrv.buscarPorId(id);
         if(c != null){
             return ResponseEntity.ok(c);
@@ -88,21 +91,22 @@ public class ClienteRest {
     }
 
 
-    @PutMapping(path = "/{id}")
+    @PutMapping(path = "/update-by-id/{id}")
     @ApiOperation(value = "Actualiza un cliente")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Actualizado correctamente"),
-        @ApiResponse(code = 401, message = "No autorizado"),
-        @ApiResponse(code = 403, message = "Prohibido"),
-        @ApiResponse(code = 404, message = "El ID no existe")
+        @ApiResponse(code = 200, message = "Actualizado correctamente")
     })
     public ResponseEntity<Cliente> actualizar(@RequestBody Cliente nuevo,  @PathVariable Integer id){
-        return ResponseEntity.ok(clienteSrv.actualizarCliente(nuevo, id));
+        Cliente clienteActualizado = clienteSrv.actualizarCliente(nuevo, id);
+        if(clienteActualizado != null){
+            return ResponseEntity.ok(clienteActualizado);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     // TODO corroborar respondeEntity<pedido> con ResponseEntity.ok?
 
-    @DeleteMapping(path = "/{id}")
+    @DeleteMapping(path = "/delete-by-id/{id}")
     @ApiOperation(value = "Borra un cliente por id")
     public ResponseEntity<Cliente> borrar(@PathVariable Integer id){
         boolean resultado = clienteSrv.borrarCliente(id);

@@ -5,6 +5,7 @@ import com.dan.pgm.danmsusuarios.database.UsuarioRepository;
 import com.dan.pgm.danmsusuarios.domain.Cliente;
 import com.dan.pgm.danmsusuarios.domain.TipoUsuario;
 import com.dan.pgm.danmsusuarios.domain.Usuario;
+import com.dan.pgm.danmsusuarios.dtos.ClienteDTO;
 import com.dan.pgm.danmsusuarios.repository.ClienteRepositoryInMemory;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import com.dan.pgm.danmsusuarios.services.RiesgoBCRAService;
@@ -28,38 +29,48 @@ public class ClienteServiceImpl implements ClienteService {
     @Autowired
     ClienteRepositoryInMemory repo;
 
+    @Autowired
     ClienteRepository clienteRepository;
 
+    @Autowired
     UsuarioRepository usuarioRepository;
 
     @Override
-    public Cliente crearCliente(Cliente cli) {
-        int riesgo = riesgoSrv.verificarSituacionCrediticia(cli);
+    public Cliente crearCliente(ClienteDTO clienteDTO) {
+        Cliente clienteFinal = new Cliente();
+        int riesgo = riesgoSrv.verificarSituacionCrediticia(clienteFinal);
         if(riesgo == 1 || riesgo == 2){
-            cli.setHabilitadoOnline(true);
-            System.out.println("cliente habilitado: " + cli.getHabilitadoOnline());
+            clienteFinal.setHabilitadoOnline(true);
+            System.out.println("cliente habilitado: " + clienteFinal.getHabilitadoOnline());
         } else {
-            cli.setHabilitadoOnline(false);
-            System.out.println("cliente habilitado: " + cli.getHabilitadoOnline());
+            clienteFinal.setHabilitadoOnline(false);
+            System.out.println("cliente inhabilitado: " + clienteFinal.getHabilitadoOnline());
         }
 
         // Crear el Usuario
         Usuario u = new Usuario();
-        u.setUser(cli.getMail());
+        u.setUser(clienteDTO.getUsername());
         u.setTipoUsuario(TipoUsuario.CLIENTE);
-        u.setPassword("1234");
+        u.setPassword(clienteDTO.getPassword());
         // Guardar el Usuario
         usuarioRepository.save(u);
-        // Setear el usuario al cliente
-        cli.setUser(u);
+        // Setear el usuario al cliente y demás atributos
+        clienteFinal.setUser(u);
+        clienteFinal.setCuit(clienteDTO.getCuit());
+        clienteFinal.setMail(clienteDTO.getMail());
+        clienteFinal.setMaxCuentaCorriente(clienteDTO.getMaxCuentaCorriente());
+        clienteFinal.setRazonSocial(clienteDTO.getRazonSocial());
+        clienteFinal.setObras(clienteDTO.getObras());
 
-        return clienteRepository.save(cli);
+        return clienteRepository.save(clienteFinal);
     }
 
     @Override
     public Cliente buscarPorId(Integer id){
-        Cliente cli = clienteRepository.findById(id).get();
-        if(cli.getFechaBaja() == null){
+        System.out.println("get por id service");
+        Cliente cli = clienteRepository.findById(id).orElse(null);
+        System.out.println("Cliente" + cli);
+        if(cli!= null && cli.getFechaBaja() == null){
             return cli;
         }
         return null;
@@ -67,13 +78,13 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente buscarPorCuit(String cuit) {
-        Cliente c = clienteRepository.findAllByCuit(cuit);
+        Cliente c = clienteRepository.findFirstByCuit(cuit).orElse(null);
         return c;
     }
 
     @Override
     public List<Cliente> buscarTodos() {
-        List<Cliente> sinFechaDeBaja = (List) clienteRepository.findAllByFechaBaja();
+        List<Cliente> sinFechaDeBaja = (List) clienteRepository.findAllByFechaBajaIsNull();
         return sinFechaDeBaja;
     }
 
@@ -121,7 +132,11 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente actualizarCliente(Cliente cli, Integer id) {
-        return clienteRepository.save(cli);
+        Cliente clientePorActualizar = buscarPorId(id);
+        if(clientePorActualizar != null && clientePorActualizar.getId() == id) {
+            return clienteRepository.save(cli);
+        }
+        return null;
     }
 
 }
