@@ -32,36 +32,30 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/api/obra")
 @Api(value = "ObraRest", description = "Permite gestionar las obras de la empresa")
 public class ObraRest {
-	
-	private static final List<Obra> listaObras = new ArrayList<>();
 
 	@Autowired
 	ObraService obraSrv;
 
 	@PostMapping
 	 @ApiOperation(value = "Carga una obra")
-	    public ResponseEntity<ObraDTO> crear(@RequestBody Obra nuevo){
+	    public ResponseEntity<ObraDTO> crear(@RequestBody ObraDTO nuevo){
 	    	System.out.println(" crear obra "+nuevo);
 			Obra o = obraSrv.crearObra(nuevo);
 	       	if(o != null) {
-				ObraDTO obraDTO = new ObraDTO(o);
-			    return ResponseEntity.ok(obraDTO);
+			    return ResponseEntity.ok(nuevo);
 			} else {
 	       		return ResponseEntity.notFound().build();
 			}
 
 	    }
 
-	    //TODO VER?? ¿
 	 @PutMapping(path = "/{id}")
 	    @ApiOperation(value = "Actualiza una obra")
 	    @ApiResponses(value = {
 	        @ApiResponse(code = 200, message = "Actualizado correctamente"),
-	        @ApiResponse(code = 401, message = "No autorizado"),
-	        @ApiResponse(code = 403, message = "Prohibido"),
-	        @ApiResponse(code = 404, message = "El ID no existe")
+	        @ApiResponse(code = 401, message = "No se pudo actualizar la obra")
 	    })
-	    public ResponseEntity<ObraDTO> actualizar(@RequestBody Obra nuevo,  @PathVariable Integer id){
+	    public ResponseEntity<ObraDTO> actualizar(@RequestBody ObraDTO nuevo,  @PathVariable Integer id){
 			Obra o = obraSrv.actualizarObra(nuevo);
 			if(o != null) {
 				ObraDTO obraDTO = new ObraDTO(o);
@@ -70,7 +64,6 @@ public class ObraRest {
 			return ResponseEntity.badRequest().build();
 	    }
 
-		// TODO corroborar respondeEntity<pedido> con ResponseEntity.ok?
 	    @DeleteMapping(path = "/{id}")
 	    @ApiOperation(value = "Borra una obra por id")
 	    public ResponseEntity<Obra> borrar(@PathVariable Integer id){

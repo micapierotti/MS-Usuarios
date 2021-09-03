@@ -3,6 +3,7 @@ package com.dan.pgm.danmsusuarios.dtos;
 import com.dan.pgm.danmsusuarios.domain.Obra;
 
 public class ObraDTO {
+    private Integer id;
     private String descripcion;
     private Float latitud;
     private Float longitud;
@@ -11,7 +12,8 @@ public class ObraDTO {
     private String tipo;
     private Integer clienteId;
 
-    public ObraDTO(String descripcion, Float latitud, Float longitud, String direccion, Integer superficie, String tipo, Integer clienteId) {
+    public ObraDTO(Integer id, String descripcion, Float latitud, Float longitud, String direccion, Integer superficie, String tipo, Integer clienteId) {
+        this.id = id;
         this.descripcion = descripcion;
         this.latitud = latitud;
         this.longitud = longitud;
@@ -26,6 +28,7 @@ public class ObraDTO {
     }
 
     public ObraDTO(Obra o) {
+        this.id = o.getId();
         this.descripcion = o.getDescripcion();
         this.latitud = o.getLatitud();
         this.longitud = o.getLongitud();
@@ -33,6 +36,14 @@ public class ObraDTO {
         this.superficie = o.getSuperficie();
         this.tipo = o.getTipo().toString();
         this.clienteId = o.getCliente().getId();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getDescripcion() {

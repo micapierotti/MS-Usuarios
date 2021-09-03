@@ -2,14 +2,15 @@ package com.dan.pgm.danmsusuarios.database;
 
 
 import com.dan.pgm.danmsusuarios.domain.Obra;
+import com.dan.pgm.danmsusuarios.domain.TipoObra;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface ObraRepository extends CrudRepository<Obra, Integer> {
+public interface ObraRepository extends JpaRepository<Obra, Integer> {
 
-    @Query("select o from Obra o where o.tipo = ?1")
-    List<Obra> findByTipo(String tipo);
+    List<Obra> findByTipo(TipoObra tipo);
 }
