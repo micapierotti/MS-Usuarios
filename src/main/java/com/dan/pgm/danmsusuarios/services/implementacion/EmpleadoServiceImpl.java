@@ -1,7 +1,11 @@
 package com.dan.pgm.danmsusuarios.services.implementacion;
 
 import com.dan.pgm.danmsusuarios.database.EmpleadoRepository;
+import com.dan.pgm.danmsusuarios.database.UsuarioRepository;
 import com.dan.pgm.danmsusuarios.domain.Empleado;
+import com.dan.pgm.danmsusuarios.domain.TipoUsuario;
+import com.dan.pgm.danmsusuarios.domain.Usuario;
+import com.dan.pgm.danmsusuarios.dtos.EmpleadoDTO;
 import com.dan.pgm.danmsusuarios.services.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,12 +14,26 @@ import java.util.List;
 @Service
 public class EmpleadoServiceImpl implements EmpleadoService {
 
+    @Autowired
     EmpleadoRepository empleadoRepository;
 
+    @Autowired
+    UsuarioRepository usuarioRepository;
+
     @Override
-    public Empleado crearEmpleado(Empleado e) {
-        this.empleadoRepository.save(e);
-        return e;
+    public Empleado crearEmpleado(EmpleadoDTO e) {
+        Empleado empl = new Empleado();
+        empl.setNombre(e.getNombre());
+        empl.setMail(e.getMail());
+
+        Usuario u = new Usuario();
+        u.setPassword(e.getPassword());
+        u.setTipoUsuario(TipoUsuario.EMPLEADO);
+        u.setUser(e.getUser());
+        usuarioRepository.save(u);
+
+        empl.setUser(u);
+        return empleadoRepository.save(empl);
     }
 
     @Override
@@ -58,7 +76,9 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
     @Override
     public Empleado buscarPorNombre(String nombre) {
-        return empleadoRepository.findAllByNombre(nombre);
+
+        Empleado empl = empleadoRepository.findFirstByNombre(nombre).orElse(null);
+        return empl;
     }
 
     @Override
