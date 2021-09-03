@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.*;
@@ -101,34 +102,47 @@ public class ClienteServiceImpl implements ClienteService {
         if( cli != null) {
             ArrayList<Integer> idsDeObra = new ArrayList<Integer>();
             cli.getObras().forEach((obra) -> idsDeObra.add(obra.getId()));
+            System.out.println("ids de obras: " + idsDeObra.toString());
             if(idsDeObra.size() > 0) {
+                System.out.println("Entro para ir a verificar pedidos");
                 tienePedidos = this.verificarPedidosCliente(idsDeObra);
+                System.out.println("tiene pedidos. "+ tienePedidos);
             } else {
                 tienePedidos = false;
             }
             if(tienePedidos){
+                System.out.println("tiene pedidos, así que se le asigna una fecha baja");
                 cli.setFechaBaja(new Date());
+                clienteRepository.save(cli);
+                return true;
             } else {
-                clienteRepository.delete(cli);
+                System.out.println("viene a borrar el cliente");
+                clienteRepository.deleteById(id);
                 if (clienteRepository.findById(id).isPresent()) {
+                    System.out.println("no tuvo exito");
                     return false;
                 } else {
+                    System.out.println("tuvo exito");
                     return true;
                 }
             }
         }
+        System.out.println("el cliente no existia");
         return false;
     }
     public Boolean verificarPedidosCliente(ArrayList<Integer> idsDeObra){
         String url = REST_API_URL + GET_SI_EXISTEN_PEDIDOS;
         WebClient client = WebClient.create(url);
-
-        return client.get()
-                .uri(url, idsDeObra).accept(MediaType.APPLICATION_JSON)
+        System.out.println("previo a pegarle al endpoint de ms pedidos");
+        System.out.println("url: "+url);
+        Boolean response = client.post()
+                .uri(url)
+                .body(Mono.just(idsDeObra), List.class)
                 .retrieve()
                 .bodyToMono(Boolean.class)
                 .block();
-
+        System.out.println("response del endpoint: "+ response.toString());
+        return response;
     }
 
 
