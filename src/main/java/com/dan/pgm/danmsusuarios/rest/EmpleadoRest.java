@@ -1,5 +1,6 @@
 package com.dan.pgm.danmsusuarios.rest;
 
+import com.dan.pgm.danmsusuarios.dtos.EmpleadoDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +29,9 @@ public class EmpleadoRest {
 	@Autowired
 	EmpleadoService empleadoSrv;
 
-	@PostMapping
+	@PostMapping(path = "/new")
 	@ApiOperation(value = "Carga un empleado")
-	public ResponseEntity<String> crear(@RequestBody Empleado nuevoEmpleado){
+	public ResponseEntity<String> crear(@RequestBody EmpleadoDTO nuevoEmpleado){
 		System.out.println("Crear empleado " +nuevoEmpleado);
 
 		if(nuevoEmpleado==null)
@@ -71,13 +72,13 @@ public class EmpleadoRest {
 				return ResponseEntity.notFound().build();
 	    }
 
-	    @GetMapping
+	    @GetMapping(path = "/by-name/{nombre}")
 	    @ApiOperation(value = "Busca un empleado por nombre")
-	    public ResponseEntity<Empleado> empleadoPorNombre(@RequestParam(name="nombre") String nombre){
+	    public ResponseEntity<Empleado> empleadoPorNombre(@PathVariable String nombre){
 			return ResponseEntity.ok(empleadoSrv.buscarPorNombre(nombre));
 	    }
 
-		@GetMapping
+		@GetMapping()
 		@ApiOperation(value = "Devuelve todos los empleados")
 		public ResponseEntity<List<Empleado>> buscarTodos(){
 			List<Empleado> empleados = empleadoSrv.buscarTodos();

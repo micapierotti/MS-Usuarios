@@ -1,7 +1,10 @@
 package com.dan.pgm.danmsusuarios.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.dan.pgm.danmsusuarios.domain.Obra;
+import com.dan.pgm.danmsusuarios.dtos.ClienteDTO;
+import com.dan.pgm.danmsusuarios.dtos.MostrarClienteDTO;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,16 +38,17 @@ public class ClienteRest {
 
     @PostMapping
     @ApiOperation(value = "Carga un cliente")
-    public ResponseEntity<String> crear(@RequestBody Cliente nuevoCliente){
+    public ResponseEntity<String> crear(@RequestBody ClienteDTO nuevoCliente){
 
-        System.out.println("Crear cliente "+ nuevoCliente);
+        System.out.println("Crear cliente "+ nuevoCliente.toString());
 
-        if(nuevoCliente.getObras().size() == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Debe tener una o más obras");
-        }
-        for(Obra ob:nuevoCliente.getObras()){
-            if(ob.getTipo() == null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La obra "+ ob.getId() +" debe tener un tipo asignado");
+        if (nuevoCliente.getObras() != null) {
+            if(nuevoCliente.getObras().size() > 0) {
+                for (Obra ob : nuevoCliente.getObras()) {
+                    if (ob.getTipo() == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La obra " + ob.getId() + " debe tener un tipo asignado");
+                    }
+                }
             }
         }
 
@@ -52,12 +56,14 @@ public class ClienteRest {
         return ResponseEntity.status(HttpStatus.CREATED).body("OK");
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/by-id/{id}")
     @ApiOperation(value = "Busca un cliente por id")
-    public ResponseEntity<Cliente> clientePorId(@PathVariable Integer id){
+    public ResponseEntity<MostrarClienteDTO> clientePorId(@PathVariable Integer id){
+        System.out.println("entró al get por id");
         Cliente c = clienteSrv.buscarPorId(id);
         if(c != null){
-            return ResponseEntity.ok(c);
+            MostrarClienteDTO mostrarClienteDTO = new MostrarClienteDTO(c);
+            return ResponseEntity.ok(mostrarClienteDTO);
         }else{
             return ResponseEntity.notFound().build();
         }
@@ -65,13 +71,19 @@ public class ClienteRest {
     
     @GetMapping(path = "/cuit/{cuit}")
     @ApiOperation(value = "Busca un cliente por cuit")
-    public ResponseEntity<Cliente> clientePorCUIT(@PathVariable String cuit){
-        return ResponseEntity.ok(clienteSrv.buscarPorCuit(cuit));
+    public ResponseEntity<MostrarClienteDTO> clientePorCUIT(@PathVariable String cuit){
+        Cliente c = clienteSrv.buscarPorCuit(cuit);
+        if(c != null){
+            MostrarClienteDTO mostrarClienteDTO = new MostrarClienteDTO(c);
+            return ResponseEntity.ok(mostrarClienteDTO);
+        }else{
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping
     @ApiOperation(value = "Busca un cliente por razon social si se pasa la razón social por query param")
-    public ResponseEntity<List<Cliente>> todos(@RequestParam(name="razonSocial", required = false) String razonSocial) {
+    public ResponseEntity<List<MostrarClienteDTO>> todos(@RequestParam(name="razonSocial", required = false) String razonSocial) {
         List<Cliente> clientes;
         if(razonSocial != null) {
     	    clientes = clienteSrv.buscarTodosRazonSocial(razonSocial);
@@ -80,7 +92,9 @@ public class ClienteRest {
         }
 
         if(clientes.size() > 0){
-            return ResponseEntity.ok(clientes);
+            List<MostrarClienteDTO> mostrarClienteDTOList = new ArrayList<MostrarClienteDTO>();
+            clientes.stream().forEach(cli -> mostrarClienteDTOList.add(new MostrarClienteDTO(cli)));
+            return ResponseEntity.ok(mostrarClienteDTOList);
         }else {
             return ResponseEntity.notFound().build();
         }
@@ -88,21 +102,23 @@ public class ClienteRest {
     }
 
 
-    @PutMapping(path = "/{id}")
+    @PutMapping(path = "/update-by-id/{id}")
     @ApiOperation(value = "Actualiza un cliente")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Actualizado correctamente"),
-        @ApiResponse(code = 401, message = "No autorizado"),
-        @ApiResponse(code = 403, message = "Prohibido"),
-        @ApiResponse(code = 404, message = "El ID no existe")
+        @ApiResponse(code = 200, message = "Actualizado correctamente")
     })
-    public ResponseEntity<Cliente> actualizar(@RequestBody Cliente nuevo,  @PathVariable Integer id){
-        return ResponseEntity.ok(clienteSrv.actualizarCliente(nuevo, id));
+    public ResponseEntity<MostrarClienteDTO> actualizar(@RequestBody Cliente nuevo,  @PathVariable Integer id){
+        Cliente clienteActualizado = clienteSrv.actualizarCliente(nuevo, id);
+        if(clienteActualizado != null){
+            MostrarClienteDTO mostrarClienteDTO = new MostrarClienteDTO(clienteActualizado);
+            return ResponseEntity.ok(mostrarClienteDTO);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     // TODO corroborar respondeEntity<pedido> con ResponseEntity.ok?
 
-    @DeleteMapping(path = "/{id}")
+    @DeleteMapping(path = "/delete-by-id/{id}")
     @ApiOperation(value = "Borra un cliente por id")
     public ResponseEntity<Cliente> borrar(@PathVariable Integer id){
         boolean resultado = clienteSrv.borrarCliente(id);

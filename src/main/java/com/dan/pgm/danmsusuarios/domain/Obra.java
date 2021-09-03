@@ -13,8 +13,8 @@ public class Obra {
 	private Integer superficie;
 	@Enumerated(EnumType.STRING)
 	private TipoObra tipo;
-	@OneToMany(mappedBy = "obras", targetEntity = Cliente.class, cascade = CascadeType.ALL,
-	fetch = FetchType.LAZY, orphanRemoval = true)
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "CLIENTE_ID")
 	private Cliente cliente;
 
 
@@ -66,7 +66,19 @@ public class Obra {
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
-	
-	
 
+	public Obra(Integer id, String descripcion, Float latitud, Float longitud, String direccion, Integer superficie, TipoObra tipo, Cliente cliente) {
+		this.id = id;
+		this.descripcion = descripcion;
+		this.latitud = latitud;
+		this.longitud = longitud;
+		this.direccion = direccion;
+		this.superficie = superficie;
+		this.tipo = tipo;
+		this.cliente = cliente;
+	}
+
+	public Obra() {
+
+	}
 }
