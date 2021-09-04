@@ -5,15 +5,18 @@ import com.dan.pgm.danmsusuarios.database.ObraRepository;
 import com.dan.pgm.danmsusuarios.database.UsuarioRepository;
 import com.dan.pgm.danmsusuarios.domain.Cliente;
 import com.dan.pgm.danmsusuarios.domain.Obra;
+import com.dan.pgm.danmsusuarios.domain.TipoObra;
+import com.dan.pgm.danmsusuarios.dtos.ObraDTO;
 import com.dan.pgm.danmsusuarios.repository.ClienteRepositoryInMemory;
 import com.dan.pgm.danmsusuarios.services.ObraService;
 import com.dan.pgm.danmsusuarios.services.RiesgoBCRAService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Service
 public class ObraServiceImpl implements ObraService {
 
     @Autowired
@@ -25,24 +28,35 @@ public class ObraServiceImpl implements ObraService {
     @Autowired
     ClienteServiceImpl clienteServiceImpl;
 
-    public Obra crearObra(Obra obra){
-        Cliente c = clienteServiceImpl.buscarPorId(obra.getCliente().getId());
+    public Obra crearObra(ObraDTO obra){
+        Cliente c = clienteServiceImpl.buscarPorId(obra.getClienteId());
         if(c != null){
-            return obraRepository.save(obra);
+            Obra o = new Obra(obra.getId(), obra.getDescripcion(), obra.getLatitud(), obra.getLongitud(),
+                    obra.getDireccion(), obra.getSuperficie(), TipoObra.valueOf(obra.getTipo()), c);
+            return obraRepository.save(o);
         } else {
             return null;
         }
     }
 
-    public Obra actualizarObra(Obra o){
-        return obraRepository.save(o);
+    @Override
+    public Obra actualizarObra(ObraDTO obra){
+        Cliente c = clienteServiceImpl.buscarPorId(obra.getClienteId());
+        if(c != null){
+            Obra o = new Obra(obra.getId(), obra.getDescripcion(), obra.getLatitud(), obra.getLongitud(),
+                    obra.getDireccion(), obra.getSuperficie(), TipoObra.valueOf(obra.getTipo()), c);
+            return obraRepository.save(o);
+        } else {
+            return null;
+        }
     }
 
     public boolean borrarObra(Integer idObra){
-        Obra o = this.buscarObraPorId(idObra);
+        Obra o = obraRepository.findById(idObra).orElse(null);
         if(o != null){
+            o.setCliente(null);
             obraRepository.delete(o);
-            if(this.buscarObraPorId(idObra) != null){
+            if(obraRepository.findById(idObra).orElse(null) != null){
                 return false;
             } else {
                 return true;
@@ -84,7 +98,7 @@ public class ObraServiceImpl implements ObraService {
            return resultado;
         }
         else if(idCliente == null && tipoObra != null){
-            return obraRepository.findByTipo(tipoObra);
+            return (List) obraRepository.findByTipo(TipoObra.valueOf(tipoObra));
         }
 
         return (List) obraRepository.findAll();

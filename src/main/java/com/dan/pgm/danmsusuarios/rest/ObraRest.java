@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
+import com.dan.pgm.danmsusuarios.dtos.ObraDTO;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import com.dan.pgm.danmsusuarios.services.ObraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,39 +32,38 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/api/obra")
 @Api(value = "ObraRest", description = "Permite gestionar las obras de la empresa")
 public class ObraRest {
-	
-	private static final List<Obra> listaObras = new ArrayList<>();
 
 	@Autowired
 	ObraService obraSrv;
 
 	@PostMapping
 	 @ApiOperation(value = "Carga una obra")
-	    public ResponseEntity<Obra> crear(@RequestBody Obra nuevo){
+	    public ResponseEntity<ObraDTO> crear(@RequestBody ObraDTO nuevo){
 	    	System.out.println(" crear obra "+nuevo);
 			Obra o = obraSrv.crearObra(nuevo);
 	       	if(o != null) {
-				return ResponseEntity.ok(o);
+			    return ResponseEntity.ok(nuevo);
 			} else {
 	       		return ResponseEntity.notFound().build();
 			}
 
 	    }
 
-	    //TODO VER?? ¿
 	 @PutMapping(path = "/{id}")
 	    @ApiOperation(value = "Actualiza una obra")
 	    @ApiResponses(value = {
 	        @ApiResponse(code = 200, message = "Actualizado correctamente"),
-	        @ApiResponse(code = 401, message = "No autorizado"),
-	        @ApiResponse(code = 403, message = "Prohibido"),
-	        @ApiResponse(code = 404, message = "El ID no existe")
+	        @ApiResponse(code = 401, message = "No se pudo actualizar la obra")
 	    })
-	    public ResponseEntity<Obra> actualizar(@RequestBody Obra nuevo,  @PathVariable Integer id){
-	       return ResponseEntity.ok(obraSrv.actualizarObra(nuevo));
+	    public ResponseEntity<ObraDTO> actualizar(@RequestBody ObraDTO nuevo,  @PathVariable Integer id){
+			Obra o = obraSrv.actualizarObra(nuevo);
+			if(o != null) {
+				ObraDTO obraDTO = new ObraDTO(o);
+				return ResponseEntity.ok(obraDTO);
+			}
+			return ResponseEntity.badRequest().build();
 	    }
 
-		// TODO corroborar respondeEntity<pedido> con ResponseEntity.ok?
 	    @DeleteMapping(path = "/{id}")
 	    @ApiOperation(value = "Borra una obra por id")
 	    public ResponseEntity<Obra> borrar(@PathVariable Integer id){
@@ -77,10 +77,11 @@ public class ObraRest {
 	    
 	    @GetMapping(path = "/{id}")
 	    @ApiOperation(value = "Busca una obra por id")
-	    public ResponseEntity<Obra> obraPorId(@PathVariable Integer id){
+	    public ResponseEntity<ObraDTO> obraPorId(@PathVariable Integer id){
 			Obra o = obraSrv.buscarObraPorId(id);
 			if(o != null){
-				return ResponseEntity.ok(o);
+				ObraDTO obraDTO = new ObraDTO(o);
+				return ResponseEntity.ok(obraDTO);
 			} else {
 				return  ResponseEntity.notFound().build();
 			}
@@ -88,12 +89,14 @@ public class ObraRest {
 	    
 	    @GetMapping
 	    @ApiOperation(value = "Busca una obra por cliente y/o tipo de obra")
-	    public ResponseEntity<List<Obra>> obraPorClienteOTipo(@RequestParam(name="idCliente", required = false) Integer idCliente,
+	    public ResponseEntity<List<ObraDTO>> obraPorClienteOTipo(@RequestParam(name="idCliente", required = false) Integer idCliente,
 															  @RequestParam(name="tipoObra", required = false) String tipoObra){
 
 			List<Obra> resultado = obraSrv.buscarPorClienteOTipo(idCliente, tipoObra);
 			if(resultado.size() > 0){
-				return ResponseEntity.ok(resultado);
+				List<ObraDTO> obrasDTO = new ArrayList<ObraDTO>();
+				resultado.stream().forEach(obra -> obrasDTO.add(new ObraDTO(obra)));
+				return ResponseEntity.ok(obrasDTO);
 			}else{
 				return ResponseEntity.notFound().build();
 			}
