@@ -10,12 +10,12 @@ import com.dan.pgm.danmsusuarios.repository.ClienteRepositoryInMemory;
 import com.dan.pgm.danmsusuarios.services.ClienteService;
 import com.dan.pgm.danmsusuarios.services.RiesgoBCRAService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -23,6 +23,9 @@ public class ClienteServiceImpl implements ClienteService {
 
     private static final String GET_SI_EXISTEN_PEDIDOS = "/api/pedido/existen-pedidos";
     private static final String REST_API_URL = "http://localhost:9002";
+
+    @Autowired
+    CircuitBreakerFactory circuitBreakerFactory;
 
     @Autowired
     RiesgoBCRAService riesgoSrv;
@@ -133,19 +136,26 @@ public class ClienteServiceImpl implements ClienteService {
     public Boolean verificarPedidosCliente(ArrayList<Integer> idsDeObra){
         String url = REST_API_URL + GET_SI_EXISTEN_PEDIDOS;
         WebClient client = WebClient.create(url);
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+
         System.out.println("previo a pegarle al endpoint de ms pedidos");
         System.out.println("url: "+url);
-        Boolean response = client.post()
-                .uri(url)
-                .body(Mono.just(idsDeObra), List.class)
-                .retrieve()
-                .bodyToMono(Boolean.class)
-                .block();
-        System.out.println("response del endpoint: "+ response.toString());
-        return response;
+
+        return circuitBreaker.run(() -> {
+            Boolean response = client.post()
+                    .uri(url)
+                    .body(Mono.just(idsDeObra), List.class)
+                    .retrieve()
+                    .bodyToMono(Boolean.class)
+                    .block();
+            System.out.println("response del endpoint: "+ response.toString());
+            return response;
+        }, throwable -> defaultVerificarPedidos());
     }
 
-
+    private Boolean defaultVerificarPedidos() {
+        return false;
+    }
 
     @Override
     public Cliente actualizarCliente(Cliente cli, Integer id) {
